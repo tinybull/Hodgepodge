@@ -1,3 +1,5 @@
+//参考: https://stackoverflow.com/questions/40375551/promise-all-with-limit
+
 let promises = [];
 for(let i=0; i<11; i++){
     promises[i] = () => {
