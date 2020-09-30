@@ -1,0 +1,46 @@
+let promises = [];
+for(let i=0; i<11; i++){
+    promises[i] = () => {
+        console.log('Construct:',i);
+        return new Promise(resolve => {
+            setTimeout(function() {
+                console.log('Resolve:',i);
+                resolve(i);
+            }, Math.round(Math.random() * (2000 - 500) + 2000));
+        });
+    }
+} 
+
+
+function parallelLimit(promiseFactories, limit) {
+  let result = [];
+  let cnt = 0;
+
+  function chain(promiseFactories) {
+    if(!promiseFactories.length) return;
+    let i = cnt++; // preserve order in result
+    const promiseFactory =  promiseFactories.shift(); // Mutated source variable of promises
+    return promiseFactory().then((res) => {
+      result[i] = res; // save result
+      return chain(promiseFactories); // append next promise
+    });
+  }
+
+  let arrChains = [];
+  while(limit-- > 0 && promiseFactories.length > 0) {
+    // create `limit` chains which run in parallel
+    arrChains.push(chain(promiseFactories));
+  }
+
+  // return when all arrChains are finished
+  console.log(arrChains)
+  return Promise.all(arrChains).then(() => {console.log(result); return result;});
+}
+
+
+parallelLimit(promises, 4).then(console.log);
+
+console.log('promises',promises)
+
+
+// Promise.all([promise1, promise2, ... , promiseN])  如果promise1 resolve后的返回值是另一个Promise，那么需要等待该Promise被resolve
